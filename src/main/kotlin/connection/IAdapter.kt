@@ -25,7 +25,7 @@ interface IAdapter {
         try {
             val json = JsonParser.parseString(message).asJsonObject
             val type = json["action"]?.asString ?: throw JsonSyntaxException("找不到请求类型 action")
-            val data = json["data"]?.asJsonObject ?: throw JsonSyntaxException("$type 找不到请求数据 data")
+            val data = json["data"]?.asJsonObject ?: JsonObject()
             val echo = json["echo"] ?: throw JsonSyntaxException("$type 找不到回调标识 echo")
             scope.launch {
                 action(type)?.invoke(this@IAdapter, data, echo) ?: run {
