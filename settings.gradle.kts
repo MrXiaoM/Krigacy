@@ -1,6 +1,7 @@
 rootProject.name = "krigacy"
 
 include("protos")
+include(":standalone")
 
 pluginManagement {
     repositories {
