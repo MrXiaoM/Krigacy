@@ -1,7 +1,5 @@
 package top.mrxiaom.kritor.adapter.onebot.standalone
 
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.plus
@@ -10,6 +8,8 @@ import org.java_websocket.framing.CloseFrame
 import org.java_websocket.handshake.ClientHandshake
 import org.java_websocket.server.WebSocketServer
 import org.slf4j.Logger
+import top.mrxiaom.kritor.adapter.onebot.action.IAction
+import top.mrxiaom.kritor.adapter.onebot.connection.ChannelWrapper
 import top.mrxiaom.kritor.adapter.onebot.connection.IAdapter
 import top.mrxiaom.kritor.adapter.onebot.standalone.utils.CloseCode
 import java.lang.Exception
@@ -19,23 +19,24 @@ import java.util.TreeMap
 class WSPositiveServer(
     address: InetSocketAddress,
     override val logger: Logger,
+    override val channel: ChannelWrapper,
     private val token: String, // TODO: 该参数不稳定
     scope: CoroutineScope,
 ) : WebSocketServer(address), IAdapter {
     override val scope: CoroutineScope = scope + CoroutineName("KrigacyWebSocketServer")
-    private val listeners = TreeMap<String, suspend IAdapter.(JsonObject, JsonElement) -> Unit>(String.CASE_INSENSITIVE_ORDER)
+    private val listeners = TreeMap<String, IAction>(String.CASE_INSENSITIVE_ORDER)
 
     override suspend fun push(s: String) {
         broadcast(s)
     }
 
-    override fun addActionListener(vararg names: String, block: suspend IAdapter.(JsonObject, JsonElement) -> Unit) {
+    override fun addActionListener(action: IAction, vararg names: String) {
         for (name in names) {
-            listeners[name] = block
+            listeners[name] = action
         }
     }
 
-    override fun action(name: String): (suspend IAdapter.(JsonObject, JsonElement) -> Unit)? {
+    override fun action(name: String): IAction? {
         return listeners[name]
     }
 
