@@ -2,6 +2,8 @@ package top.mrxiaom.kritor.adapter.onebot.action
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import top.mrxiaom.kritor.adapter.onebot.action.actions.GetLoginInfo
+import top.mrxiaom.kritor.adapter.onebot.action.actions.GetVersionInfo
 import top.mrxiaom.kritor.adapter.onebot.connection.ChannelWrapper
 import top.mrxiaom.kritor.adapter.onebot.connection.IAdapter
 import top.mrxiaom.kritor.adapter.onebot.utils.buildJsonObject
@@ -9,6 +11,7 @@ import top.mrxiaom.kritor.adapter.onebot.utils.buildJsonObject
 object ActionsCollector {
     fun IAdapter.addActionListeners() {
         for (action in listOf<IAction>(
+            GetLoginInfo, GetVersionInfo
         )) {
             val anno = action.findAnnotation<Action>() ?: continue
             addActionListener(action, *anno.value)
