@@ -2,8 +2,7 @@ package top.mrxiaom.kritor.adapter.onebot.action
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import top.mrxiaom.kritor.adapter.onebot.action.actions.GetLoginInfo
-import top.mrxiaom.kritor.adapter.onebot.action.actions.GetVersionInfo
+import top.mrxiaom.kritor.adapter.onebot.action.actions.*
 import top.mrxiaom.kritor.adapter.onebot.connection.ChannelWrapper
 import top.mrxiaom.kritor.adapter.onebot.connection.IAdapter
 import top.mrxiaom.kritor.adapter.onebot.utils.buildJsonObject
@@ -11,8 +10,8 @@ import top.mrxiaom.kritor.adapter.onebot.utils.putJsonObject
 
 object ActionsCollector {
     fun IAdapter.addActionListeners() {
-        for (action in listOf<IAction>(
-            GetLoginInfo, GetVersionInfo
+        for (action in listOf(
+            GetLoginInfo, SetQQProfile, GetVersionInfo
         )) {
             val anno = action.findAnnotation<Action>() ?: continue
             addActionListener(action, *anno.value)
@@ -30,7 +29,7 @@ annotation class Action(
 
 interface IAction {
     suspend fun IAdapter.execute(wrap: ChannelWrapper, data: JsonObject, echo: JsonElement)
-    suspend fun IAdapter.ok(echo: JsonElement, block: MutableMap<String, Any>.() -> Unit) {
+    suspend fun IAdapter.ok(echo: JsonElement, block: MutableMap<String, Any>.() -> Unit = {}) {
         pushActionResponse(echo, 0, null, block)
     }
     suspend fun IAdapter.failed(echo: JsonElement, retCode: Int, message: String, block: MutableMap<String, Any>.() -> Unit = {}) {
