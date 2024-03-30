@@ -47,6 +47,9 @@ suspend fun IAdapter.pushActionResponse(echo: JsonElement, retCode: Int, message
     }.toString())
 }
 
-suspend fun IAction.execute(adapter: IAdapter, channel: ChannelWrapper, data: JsonObject, echo: JsonElement) {
+suspend fun IAction.execute(adapter: IAdapter, type: String, channel: ChannelWrapper, data: JsonObject, echo: JsonElement) = runCatching {
     adapter.execute(channel, data, echo)
+}.onFailure {
+    adapter.logger.error("执行 $type 时出现错误", it)
+    adapter.pushActionResponse(echo, 1404, it.toString())
 }

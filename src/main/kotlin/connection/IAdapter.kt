@@ -30,7 +30,7 @@ interface IAdapter {
             val data = json["data"]?.asJsonObject ?: JsonObject()
             val echo = json["echo"] ?: throw JsonSyntaxException("$type 找不到回调标识 echo")
             scope.launch {
-                action(type)?.execute(this@IAdapter, channel, data, echo) ?: run {
+                action(type)?.execute(this@IAdapter, type, channel, data, echo) ?: run {
                     logger.warn("未知的 action: $type")
                     pushActionResponse(echo, 1404, "未实现 /$type")
                 }
