@@ -17,7 +17,7 @@ object ActionsCollector {
             // Bot 账号
             GetLoginInfo, SetQQProfile,
             // 好友信息
-            GetStrangerInfo, GetFriendList,
+            GetStrangerInfo, GetFriendList, GetFriendInfo,
             // go-cqhttp 相关
             GetVersionInfo,
         )) {

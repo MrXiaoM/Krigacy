@@ -5,6 +5,7 @@ import com.google.gson.JsonObject
 import io.kritor.core.CoreServiceGrpcKt
 import io.kritor.core.getCurrentAccountRequest
 import io.kritor.friend.FriendServiceGrpcKt
+import io.kritor.friend.ProfileCard
 import io.kritor.friend.extOrNull
 import io.kritor.friend.getStrangerProfileCardRequest
 import top.mrxiaom.kritor.adapter.onebot.action.Action
@@ -23,27 +24,30 @@ object GetStrangerInfo : IAction {
         if (resp.strangersProfileCardCount < 1) throw IllegalStateException("无法获取 $userId 的资料卡")
         val profileCard = resp.getStrangersProfileCard(0)
         ok(echo) {
-            put("user_id", profileCard.uin)
-            put("nickname", profileCard.nick)
-            put("remark", profileCard.remark ?: "")
-            put("sex", "unknown") // TODO: Kritor 无法获取陌生人性别
-            put("birthday", profileCard.birthday)
-            val age = 0 // TODO: 根据未知格式的 profileCard.birthday 计算年龄
-            put("age", age)
-            put("qid", profileCard.qid)
-            put("level", profileCard.level)
-            put("login_days", profileCard.loginDay)
-
-            put("uid", profileCard.uid)
-            put("vote_count", profileCard.voteCnt)
-
-            profileCard.extOrNull?.also {
-                put("big_vip", it.bigVip)
-                put("hollywood_vip", it.hollywoodVip)
-                put("qq_vip", it.qqVip)
-                put("super_vip", it.superVip)
-                put("voted", it.voted)
-            }
+            putProfileCard(profileCard)
         }
+    }
+}
+fun MutableMap<String, Any>.putProfileCard(profileCard: ProfileCard) {
+    put("user_id", profileCard.uin)
+    put("nickname", profileCard.nick)
+    put("remark", profileCard.remark ?: "")
+    put("sex", "unknown") // TODO: Kritor 无法获取陌生人性别
+    put("birthday", profileCard.birthday)
+    val age = 0 // TODO: 根据未知格式的 profileCard.birthday 计算年龄
+    put("age", age)
+    put("qid", profileCard.qid)
+    put("level", profileCard.level)
+    put("login_days", profileCard.loginDay)
+
+    put("uid", profileCard.uid)
+    put("vote_count", profileCard.voteCnt)
+
+    profileCard.extOrNull?.also {
+        put("big_vip", it.bigVip)
+        put("hollywood_vip", it.hollywoodVip)
+        put("qq_vip", it.qqVip)
+        put("super_vip", it.superVip)
+        put("voted", it.voted)
     }
 }
