@@ -50,5 +50,5 @@ suspend fun IAction.execute(adapter: IAdapter, type: String, channel: ChannelWra
     adapter.execute(channel, data, echo)
 }.onFailure {
     adapter.logger.error("执行 $type 时出现错误", it)
-    adapter.pushActionResponse(echo, 1404, it.toString())
+    adapter.pushActionResponse(echo, 1500, it.toString())
 }
