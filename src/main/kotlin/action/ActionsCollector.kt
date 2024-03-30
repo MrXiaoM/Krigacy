@@ -10,8 +10,15 @@ import top.mrxiaom.kritor.adapter.onebot.utils.putJsonObject
 
 object ActionsCollector {
     fun IAdapter.addActionListeners() {
+        // 按 go-cqhttp 文档分类
+        // https://docs.go-cqhttp.org/api
         for (action in listOf(
-            GetLoginInfo, SetQQProfile, GetVersionInfo
+            // Bot 账号
+            GetLoginInfo, SetQQProfile,
+            // 好友信息
+            GetStrangerInfo,
+            // go-cqhttp 相关
+            GetVersionInfo,
         )) {
             val anno = action.findAnnotation<Action>() ?: continue
             addActionListener(action, *anno.value)
