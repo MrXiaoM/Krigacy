@@ -16,6 +16,8 @@ import top.mrxiaom.kritor.adapter.onebot.action.IAction
 import top.mrxiaom.kritor.adapter.onebot.connection.ChannelWrapper
 import top.mrxiaom.kritor.adapter.onebot.connection.IAdapter
 import top.mrxiaom.kritor.adapter.onebot.message.MessageConverter
+import top.mrxiaom.kritor.adapter.onebot.message.MsgIdStorage
+import top.mrxiaom.kritor.adapter.onebot.message.newMsgId
 
 @Action("send_private_msg", "send_private_message", "send_friend_msg", "send_friend_message")
 object SendPrivateMsg : IAction {
@@ -43,8 +45,8 @@ object SendPrivateMsg : IAction {
         })
         val uid = resp0.uidMapMap[userId] ?: throw IllegalStateException("无法获取 $userId 的 uid")
         val stub = MessageServiceGrpcKt.MessageServiceCoroutineStub(wrap.channel)
-        val resp = stub.sendMessage(sendMessageRequest {
-            contact {
+        val req = sendMessageRequest {
+            contact = contact {
                 peer = uid
                 groupId?.run {
                     subPeer = this
@@ -56,8 +58,9 @@ object SendPrivateMsg : IAction {
             }
             if (retryCount != null) this.retryCount = retryCount
             elements.addAll(MessageConverter.onebotToKritor(message))
-        })
-        val messageId = resp.messageId.toIntOrNull() ?: throw IllegalStateException("Kritor 返回的消息ID类型不为 Int32")
+        }
+        val resp = stub.sendMessage(req)
+        val messageId = MsgIdStorage.INSTANCE.put(newMsgId(req.contact, resp.messageId))
         ok(echo) {
             put("message_id", messageId)
         }
