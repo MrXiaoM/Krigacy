@@ -11,10 +11,10 @@ import top.mrxiaom.kritor.adapter.onebot.connection.IAdapter
 
 @Action("get_version_info")
 object GetVersionInfo : IAction {
-    override suspend fun IAdapter.execute(channel: ChannelWrapper, data: JsonObject, echo: JsonElement) {
-        val stub = CoreServiceGrpcKt.CoreServiceCoroutineStub(channel.channel)
+    override suspend fun IAdapter.execute(wrap: ChannelWrapper, data: JsonObject, echo: JsonElement) {
+        val stub = CoreServiceGrpcKt.CoreServiceCoroutineStub(wrap.channel)
         val resp = stub.getVersion(getVersionRequest {})
-        push(echo) {
+        ok(echo) {
             put("app_name", resp.appName)
             put("app_version", resp.version)
             put("app_full_name", "${resp.appName} ${resp.version}")

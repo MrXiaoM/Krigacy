@@ -11,10 +11,11 @@ import top.mrxiaom.kritor.adapter.onebot.connection.IAdapter
 
 @Action("get_login_info")
 object GetLoginInfo : IAction {
-    override suspend fun IAdapter.execute(channel: ChannelWrapper, data: JsonObject, echo: JsonElement) {
-        val stub = CoreServiceGrpcKt.CoreServiceCoroutineStub(channel.channel)
+    override suspend fun IAdapter.execute(wrap: ChannelWrapper, data: JsonObject, echo: JsonElement) {
+        val stub = CoreServiceGrpcKt.CoreServiceCoroutineStub(wrap.channel)
+
         val resp = stub.getCurrentAccount(getCurrentAccountRequest {})
-        push(echo) {
+        ok(echo) {
             put("user_id", resp.accountUin)
             put("user_uid", resp.accountUid)
             put("nickname", resp.accountName)

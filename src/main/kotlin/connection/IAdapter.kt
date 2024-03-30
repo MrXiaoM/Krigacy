@@ -8,6 +8,7 @@ import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import top.mrxiaom.kritor.adapter.onebot.action.IAction
 import top.mrxiaom.kritor.adapter.onebot.action.execute
+import top.mrxiaom.kritor.adapter.onebot.action.pushActionResponse
 
 interface IAdapter {
     val logger: Logger
@@ -31,6 +32,7 @@ interface IAdapter {
             scope.launch {
                 action(type)?.execute(this@IAdapter, channel, data, echo) ?: run {
                     logger.warn("未知的 action: $type")
+                    pushActionResponse(echo, 1404, "未实现 /$type")
                 }
             }
         } catch (e: JsonSyntaxException) {

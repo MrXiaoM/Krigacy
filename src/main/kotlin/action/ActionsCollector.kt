@@ -7,6 +7,7 @@ import top.mrxiaom.kritor.adapter.onebot.action.actions.GetVersionInfo
 import top.mrxiaom.kritor.adapter.onebot.connection.ChannelWrapper
 import top.mrxiaom.kritor.adapter.onebot.connection.IAdapter
 import top.mrxiaom.kritor.adapter.onebot.utils.buildJsonObject
+import top.mrxiaom.kritor.adapter.onebot.utils.putJsonObject
 
 object ActionsCollector {
     fun IAdapter.addActionListeners() {
@@ -28,13 +29,22 @@ annotation class Action(
 )
 
 interface IAction {
-    suspend fun IAdapter.execute(channel: ChannelWrapper, data: JsonObject, echo: JsonElement)
-
-    suspend fun IAdapter.push(echo: JsonElement, block: MutableMap<String, Any>.() -> Unit) {
-        val json = buildJsonObject(block)
-        json.add("echo", echo)
-        push(json.toString())
+    suspend fun IAdapter.execute(wrap: ChannelWrapper, data: JsonObject, echo: JsonElement)
+    suspend fun IAdapter.ok(echo: JsonElement, block: MutableMap<String, Any>.() -> Unit) {
+        pushActionResponse(echo, 0, null, block)
     }
+    suspend fun IAdapter.failed(echo: JsonElement, retCode: Int, message: String, block: MutableMap<String, Any>.() -> Unit = {}) {
+        pushActionResponse(echo, retCode, message, block)
+    }
+}
+suspend fun IAdapter.pushActionResponse(echo: JsonElement, retCode: Int, message: String? = null, block: MutableMap<String, Any>.() -> Unit = {}) {
+    push(buildJsonObject {
+        put("status", if (retCode == 0) "ok" else "failed")
+        put("retcode", retCode)
+        if (message != null) put("msg", message)
+        putJsonObject("data", block)
+        put("echo", echo)
+    }.toString())
 }
 
 suspend fun IAction.execute(adapter: IAdapter, channel: ChannelWrapper, data: JsonObject, echo: JsonElement) {
