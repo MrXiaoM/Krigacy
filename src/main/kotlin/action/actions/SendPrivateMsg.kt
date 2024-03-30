@@ -2,13 +2,11 @@ package top.mrxiaom.kritor.adapter.onebot.action.actions
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import io.kritor.common.Element
 import io.kritor.common.Scene
 import io.kritor.common.contact
-import io.kritor.core.CoreServiceGrpcKt
-import io.kritor.core.getCurrentAccountRequest
 import io.kritor.friend.FriendServiceGrpcKt
 import io.kritor.friend.getUidRequest
-import io.kritor.friend.setProfileCardRequest
 import io.kritor.message.MessageServiceGrpcKt
 import io.kritor.message.sendMessageRequest
 import top.mrxiaom.kritor.adapter.onebot.action.Action
@@ -38,12 +36,19 @@ object SendPrivateMsg : IAction {
         message: JsonElement,
         groupId: String? = null,
         retryCount: Int? = null
+    ) {
+        val uid = getUid(wrap, userId)
+        send(adapter, wrap, echo, uid, MessageConverter.onebotToKritor(message), groupId, retryCount)
+    }
+    suspend fun send(
+        adapter: IAdapter,
+        wrap: ChannelWrapper,
+        echo: JsonElement,
+        uid: String,
+        message: List<Element>,
+        groupId: String? = null,
+        retryCount: Int? = null
     ) = adapter.apply {
-        val stub0 = FriendServiceGrpcKt.FriendServiceCoroutineStub(wrap.channel)
-        val resp0 = stub0.getUidByUin(getUidRequest {
-            targetUins.add(userId)
-        })
-        val uid = resp0.uidMapMap[userId] ?: throw IllegalStateException("无法获取 $userId 的 uid")
         val stub = MessageServiceGrpcKt.MessageServiceCoroutineStub(wrap.channel)
         val req = sendMessageRequest {
             contact = contact {
@@ -57,12 +62,20 @@ object SendPrivateMsg : IAction {
                 }
             }
             if (retryCount != null) this.retryCount = retryCount
-            elements.addAll(MessageConverter.onebotToKritor(message))
+            elements.addAll(message)
         }
         val resp = stub.sendMessage(req)
         val messageId = MsgIdStorage.INSTANCE.put(newMsgId(req.contact, resp.messageId))
         ok(echo) {
             put("message_id", messageId)
         }
+    }
+
+    suspend fun getUid(wrap: ChannelWrapper, uin: Long): String {
+        val stub0 = FriendServiceGrpcKt.FriendServiceCoroutineStub(wrap.channel)
+        val resp0 = stub0.getUidByUin(getUidRequest {
+            targetUins.add(uin)
+        })
+        return resp0.uidMapMap[uin] ?: throw IllegalStateException("无法获取 $uin 的 uid")
     }
 }

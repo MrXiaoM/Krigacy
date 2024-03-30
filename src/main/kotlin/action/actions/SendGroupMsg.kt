@@ -2,6 +2,7 @@ package top.mrxiaom.kritor.adapter.onebot.action.actions
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import io.kritor.common.Element
 import io.kritor.common.Scene
 import io.kritor.common.contact
 import io.kritor.message.MessageServiceGrpcKt
@@ -31,6 +32,15 @@ object SendGroupMsg : IAction {
         groupId: String,
         message: JsonElement,
         retryCount: Int? = null
+    ) = send(adapter, wrap, echo, groupId, MessageConverter.onebotToKritor(message), retryCount)
+
+    suspend fun send(
+        adapter: IAdapter,
+        wrap: ChannelWrapper,
+        echo: JsonElement,
+        groupId: String,
+        message: List<Element>,
+        retryCount: Int? = null
     ) = adapter.apply {
         val stub = MessageServiceGrpcKt.MessageServiceCoroutineStub(wrap.channel)
         val req = sendMessageRequest {
@@ -39,7 +49,7 @@ object SendGroupMsg : IAction {
                 peer = groupId
             }
             if (retryCount != null) this.retryCount = retryCount
-            elements.addAll(MessageConverter.onebotToKritor(message))
+            elements.addAll(message)
         }
         val resp = stub.sendMessage(req)
         val messageId = MsgIdStorage.INSTANCE.put(newMsgId(req.contact, resp.messageId))
