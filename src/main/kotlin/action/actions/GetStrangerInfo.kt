@@ -27,11 +27,16 @@ object GetStrangerInfo : IAction {
             put("nickname", profileCard.nick)
             put("remark", profileCard.remark ?: "")
             put("sex", "unknown") // TODO: Kritor 无法获取陌生人性别
+            put("birthday", profileCard.birthday)
             val age = 0 // TODO: 根据未知格式的 profileCard.birthday 计算年龄
             put("age", age)
             put("qid", profileCard.qid)
             put("level", profileCard.level)
             put("login_days", profileCard.loginDay)
+
+            put("uid", profileCard.uid)
+            put("vote_count", profileCard.voteCnt)
+
             profileCard.extOrNull?.also {
                 put("big_vip", it.bigVip)
                 put("hollywood_vip", it.hollywoodVip)
