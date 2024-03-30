@@ -17,13 +17,12 @@ import top.mrxiaom.kritor.adapter.onebot.connection.ChannelWrapper
 import top.mrxiaom.kritor.adapter.onebot.connection.IAdapter
 import top.mrxiaom.kritor.adapter.onebot.message.MessageConverter
 
-@Action("send_private_msg", "send_private_message", "send_friend_msg", "send_friend_message")
-object SendPrivateMsg : IAction {
+@Action("send_group_msg", "send_group_message")
+object SendGroupMsg : IAction {
     override suspend fun IAdapter.execute(wrap: ChannelWrapper, data: JsonObject, echo: JsonElement) {
         send(this, wrap, echo,
-            data["user_id"].asLong,
+            data["group_id"].asString,
             data["message"],
-            data["group_id"]?.asString,
             data["retry_count"]?.asInt
         )
     }
@@ -32,27 +31,15 @@ object SendPrivateMsg : IAction {
         adapter: IAdapter,
         wrap: ChannelWrapper,
         echo: JsonElement,
-        userId: Long,
+        groupId: String,
         message: JsonElement,
-        groupId: String? = null,
         retryCount: Int? = null
     ) = adapter.apply {
-        val stub0 = FriendServiceGrpcKt.FriendServiceCoroutineStub(wrap.channel)
-        val resp0 = stub0.getUidByUin(getUidRequest {
-            targetUins.add(userId)
-        })
-        val uid = resp0.uidMapMap[userId] ?: throw IllegalStateException("无法获取 $userId 的 uid")
         val stub = MessageServiceGrpcKt.MessageServiceCoroutineStub(wrap.channel)
         val resp = stub.sendMessage(sendMessageRequest {
             contact {
-                peer = uid
-                groupId?.run {
-                    subPeer = this
-                    scene = Scene.STRANGER_FROM_GROUP
-                } ?: run {
-                    scene = Scene.FRIEND
-                    // TODO: STRANGER
-                }
+                scene = Scene.GROUP
+                peer = groupId
             }
             if (retryCount != null) this.retryCount = retryCount
             elements.addAll(MessageConverter.onebotToKritor(message))

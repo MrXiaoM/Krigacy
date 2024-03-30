@@ -26,7 +26,7 @@ object ActionsCollector {
             // delete_friend, delete_unidirectional_friend
 
             // 消息
-            SendPrivateMsg,
+            SendPrivateMsg, SendGroupMsg, SendMsg,
 
             // go-cqhttp 相关
             GetVersionInfo,
