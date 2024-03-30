@@ -27,7 +27,7 @@ fun Map<String, Any>.toJsonObject(): JsonObject {
         for ((key, value) in this@toJsonObject) {
             when (value) {
                 is JsonElement -> add(key, value)
-                is Map<*, *> -> add(key, value.toJsonObject())
+                is Map<*, *> -> add(key, value.jsonObject())
                 is Iterable<*> -> value.toJsonArray()
                 is String -> addProperty(key, value)
                 is Char -> addProperty(key, value)
@@ -43,7 +43,7 @@ fun <V> Iterable<V>.toJsonArray(): JsonArray {
         for (value in this@toJsonArray) {
             when (value) {
                 is JsonElement -> add(value)
-                is Map<*, *> -> add(value.toJsonObject())
+                is Map<*, *> -> add(value.jsonObject())
                 is Iterable<*> -> add(value.toJsonArray())
                 is String -> add(value)
                 is Char -> add(value)
@@ -54,7 +54,7 @@ fun <V> Iterable<V>.toJsonArray(): JsonArray {
         }
     }
 }
-private fun Map<*, *>.toJsonObject(): JsonObject {
+private fun Map<*, *>.jsonObject(): JsonObject {
     return cast<Map<String, Any>>().toJsonObject()
 }
 private inline fun <reified T : Any> Any.cast(): T = this as T

@@ -1,13 +1,14 @@
 plugins {
     kotlin("jvm") version "1.9.22"
-    application
 
     id("com.google.protobuf") version "0.9.4"
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
-group = "top.mrxiaom"
-version = "1.0.0"
+allprojects {
+    group = "top.mrxiaom"
+    version = "1.0.0"
+}
 
 repositories {
     mavenCentral()

@@ -19,3 +19,9 @@ dependencies {
 application {
     mainClass.set("top.mrxiaom.kritor.adapter.onebot.standalone.MainKt")
 }
+
+tasks {
+    shadowJar {
+        minimize()
+    }
+}
