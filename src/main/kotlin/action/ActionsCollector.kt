@@ -5,6 +5,7 @@ import com.google.gson.JsonObject
 import top.mrxiaom.kritor.adapter.onebot.action.actions.*
 import top.mrxiaom.kritor.adapter.onebot.connection.ChannelWrapper
 import top.mrxiaom.kritor.adapter.onebot.connection.IAdapter
+import top.mrxiaom.kritor.adapter.onebot.utils.buildJsonArray
 import top.mrxiaom.kritor.adapter.onebot.utils.buildJsonObject
 import top.mrxiaom.kritor.adapter.onebot.utils.putJsonObject
 
@@ -16,7 +17,7 @@ object ActionsCollector {
             // Bot 账号
             GetLoginInfo, SetQQProfile,
             // 好友信息
-            GetStrangerInfo,
+            GetStrangerInfo, GetFriendList,
             // go-cqhttp 相关
             GetVersionInfo,
         )) {
@@ -38,17 +39,25 @@ interface IAction {
     suspend fun IAdapter.execute(wrap: ChannelWrapper, data: JsonObject, echo: JsonElement)
     suspend fun IAdapter.ok(echo: JsonElement, block: MutableMap<String, Any>.() -> Unit = {}) {
         pushActionResponse(echo, 0, null, block)
+    }suspend fun IAdapter.okArray(echo: JsonElement, block: MutableList<Any>.() -> Unit = {}) {
+        pushActionResponseArray(echo, 0, null, block)
     }
     suspend fun IAdapter.failed(echo: JsonElement, retCode: Int, message: String, block: MutableMap<String, Any>.() -> Unit = {}) {
         pushActionResponse(echo, retCode, message, block)
     }
 }
 suspend fun IAdapter.pushActionResponse(echo: JsonElement, retCode: Int, message: String? = null, block: MutableMap<String, Any>.() -> Unit = {}) {
+    pushActionResponse(echo, retCode, message, buildJsonObject(block))
+}
+suspend fun IAdapter.pushActionResponseArray(echo: JsonElement, retCode: Int, message: String? = null, block: MutableList<Any>.() -> Unit = {}) {
+    pushActionResponse(echo, retCode, message, buildJsonArray(block))
+}
+suspend fun IAdapter.pushActionResponse(echo: JsonElement, retCode: Int, message: String? = null, data: JsonElement) {
     push(buildJsonObject {
         put("status", if (retCode == 0) "ok" else "failed")
         put("retcode", retCode)
         if (message != null) put("msg", message)
-        putJsonObject("data", block)
+        put("data", data)
         put("echo", echo)
     }.toString())
 }
