@@ -16,8 +16,18 @@ object ActionsCollector {
         for (action in listOf(
             // Bot 账号
             GetLoginInfo, SetQQProfile,
+            // _get_model_show, _set_model_show, get_online_clients
+
             // 好友信息
             GetStrangerInfo, GetFriendList, GetFriendInfo,
+            // get_unidirectional_friend_list
+
+            // 好友操作
+            // delete_friend, delete_unidirectional_friend
+
+            // 消息
+            SendPrivateMsg,
+
             // go-cqhttp 相关
             GetVersionInfo,
         )) {
