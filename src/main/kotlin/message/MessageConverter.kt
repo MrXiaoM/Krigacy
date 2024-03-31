@@ -159,11 +159,11 @@ object MessageConverter {
                         MARKDOWN -> markdown {
                             markdown = data["content"].asString
                         }
-                        BUTTON -> button {
+                        KEYBOARD -> keyboard {
                             botAppid = data["bot_appid"].asString.toLong()
                             data["rows"].asJsonArray.map { e1 ->
                                 val obj1 = e1.asJsonObject
-                                rows.add(buttonRow {
+                                rows.add(keyboardRow {
                                     obj1["buttons"].asJsonArray.map { e2 ->
                                         val button = e2.asJsonObject
                                         buttons.add(io.kritor.common.button {
@@ -239,7 +239,7 @@ object MessageConverter {
         "json" -> JSON
         "file" -> FILE // Kritor
         "markdown" -> MARKDOWN // Shamrock, Gensokyo
-        "inline_keyboard" -> BUTTON // Shamrock, Gensokyo
+        "inline_keyboard" -> KEYBOARD // Shamrock, Gensokyo
         else -> null
     }
 
@@ -368,7 +368,7 @@ object MessageConverter {
                     MARKDOWN -> markdown.apply {
                         put("content", markdown)
                     }
-                    BUTTON -> button.apply {
+                    KEYBOARD -> keyboard.apply {
                         put("bot_appid", botAppid)
                         putJsonArray("rows") {
                             rowsList.forEach { row ->
@@ -445,7 +445,7 @@ object MessageConverter {
         JSON -> "json"
         FILE -> "file" // Kritor
         MARKDOWN -> "markdown"// Shamrock, Gensokyo
-        BUTTON -> "inline_keyboard" // Shamrock, Gensokyo
+        KEYBOARD -> "inline_keyboard" // Shamrock, Gensokyo
         else -> null
     }
 }
@@ -474,4 +474,4 @@ fun ElementKt.Dsl.json(block: JsonElementKt.Dsl.() -> Unit) = jsonElement(block)
 fun ElementKt.Dsl.xml(block: XmlElementKt.Dsl.() -> Unit) = xmlElement(block).also { xml = it }
 fun ElementKt.Dsl.file(block: FileElementKt.Dsl.() -> Unit) = fileElement(block).also { file = it }
 fun ElementKt.Dsl.markdown(block: MarkdownElementKt.Dsl.() -> Unit) = markdownElement(block).also { markdown = it }
-fun ElementKt.Dsl.button(block: ButtonElementKt.Dsl.() -> Unit) = buttonElement(block).also { button = it }
+fun ElementKt.Dsl.keyboard(block: KeyboardElementKt.Dsl.() -> Unit) = keyboardElement(block).also { keyboard = it }
