@@ -8,6 +8,7 @@ import org.java_websocket.framing.CloseFrame
 import org.java_websocket.handshake.ClientHandshake
 import org.java_websocket.server.WebSocketServer
 import org.slf4j.Logger
+import top.mrxiaom.kritor.adapter.onebot.action.ActionsCollector.addActionListeners
 import top.mrxiaom.kritor.adapter.onebot.action.IAction
 import top.mrxiaom.kritor.adapter.onebot.connection.ChannelWrapper
 import top.mrxiaom.kritor.adapter.onebot.connection.IAdapter
@@ -16,11 +17,11 @@ import java.lang.Exception
 import java.net.InetSocketAddress
 import java.util.TreeMap
 
-class WSPositiveServer(
+class WSPositiveServer private constructor(
     address: InetSocketAddress,
     override val logger: Logger,
     override val channel: ChannelWrapper,
-    private val token: String, // TODO: 该参数不稳定
+    private val config: KrigacyConfig,
     scope: CoroutineScope,
 ) : WebSocketServer(address), IAdapter {
     override val scope: CoroutineScope = scope + CoroutineName("KrigacyWebSocketServer")
@@ -45,18 +46,18 @@ class WSPositiveServer(
     }
 
     override fun onOpen(client: WebSocket, handshake: ClientHandshake) {
-        if (token.isNotBlank()) {
+        if (config.onebot.token.isNotBlank()) {
             if (handshake.hasFieldValue("Authorization")) {
                 val param = handshake.getFieldValue("Authorization").run {
                     if (lowercase().startsWith("bearer ")) substring(7) else this
                 }
-                if (param != token) {
+                if (param != config.onebot.token) {
                     client.close(CloseFrame.NORMAL, "客户端提供的 token 错误")
                     return
                 }
             } else if (handshake.resourceDescriptor.contains("access_token=")) {
                 val param = handshake.resourceDescriptor.substringAfter("access_token=").substringBefore("&")
-                if (param != token) {
+                if (param != config.onebot.token) {
                     client.close(CloseFrame.NORMAL, "客户端提供的 token 错误")
                     return
                 }
@@ -86,5 +87,20 @@ class WSPositiveServer(
     override fun onStart() {
         logger.info("▌ 正向 WebSocket 服务端已在 $address 启动")
         logger.info("▌ 正在等待客户端连接...")
+    }
+
+    companion object {
+        fun start(
+            address: InetSocketAddress,
+            logger: Logger,
+            channel: ChannelWrapper,
+            config: KrigacyConfig,
+            scope: CoroutineScope
+        ): WSPositiveServer {
+            return WSPositiveServer(address, logger, channel, config, scope).also {
+                it.addActionListeners()
+                it.start()
+            }
+        }
     }
 }

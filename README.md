@@ -9,7 +9,7 @@ Krigacy 是 [Kritor](https://github.com/KarinJS/kritor) 的 Onebot 11 适配器�
 
 # TODO
 
-+ [ ] 支持主动 WebSocket 连接
++ [x] 支持主动 WebSocket 连接 *实验性*
 + [ ] 支持被动 WebSocket 连接
 
 # 构建
