@@ -4,6 +4,7 @@ import com.google.gson.GsonBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import org.slf4j.LoggerFactory
+import top.mrxiaom.krigacy.BuildConstants
 import top.mrxiaom.kritor.adapter.onebot.standalone.OnebotType.*
 import java.io.File
 import java.net.InetSocketAddress
@@ -18,4 +19,6 @@ suspend fun main() {
         else KrigacyConfig()
     }
     configFile.writeText(gson.toJson(config))
+
+    logger.info("Krigacy v${BuildConstants.VERSION} 正在启动")
 }

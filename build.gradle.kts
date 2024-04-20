@@ -3,11 +3,20 @@ plugins {
 
     id("com.google.protobuf") version "0.9.4"
     id("com.github.johnrengelman.shadow") version "7.1.2"
+    id("com.github.gmazzo.buildconfig") version "3.1.0"
 }
 
 allprojects {
     group = "top.mrxiaom"
     version = "1.0.0"
+}
+
+buildConfig {
+    className("BuildConstants")
+    packageName("${project.group}.${rootProject.name.lowercase()}")
+    useKotlinOutput()
+    buildConfigField("String", "VERSION", "\"${project.version}\"")
+    buildConfigField("java.time.Instant", "BUILD_TIME", "java.time.Instant.ofEpochSecond(${System.currentTimeMillis() / 1000L}L)")
 }
 
 repositories {
